@@ -1,0 +1,586 @@
+openapi: 3.0.3
+
+info:
+  title: Duit API
+  description: API for efficiently manage and store daily expenses
+  version: 1.0.0
+
+servers:
+  - url: 'http://localhost:8000/api/v1'
+    description: Local development server
+
+tags:
+  - name: Users
+    description: Operations about users
+  - name: Spending
+    description: Operations about spending
+
+paths:
+  /users:
+    post:
+      tags:
+        - Users
+      summary: Create a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+      responses:
+        '201':
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref:  '#/components/responses/Created'
+              example:
+                code: 201
+                status: "CREATED"
+                data:
+                  id: "123e4567-e89b-12d3-a456-426614174000"
+                  name: "John Doe"
+                  email: "john.doe@example.com"
+                  created_at: 1671615600000 # 2022-11-01T00:00:00.000Z in milliseconds
+        '400':
+          description: Invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/BadRequest'
+              example:
+                code: 400
+                status: "BAD REQUEST"
+                data: "Invalid request body"
+        '409':
+          description: User already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/Conflict'
+              example:
+                code: 409
+                status: "CONFLICT"
+                data: "User already exists"
+
+  /users/{id}:
+    get:
+      tags:
+        - Users
+      summary: Get a user by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: User found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/Ok'
+              example:
+                code: 200
+                status: "OK"
+                data:
+                  id: "123e4567-e89b-12d3-a456-426614174000"
+                  name: "John Doe"
+                  email: "john.doe@example.com"
+                  created_at: 1671615600000 # 2022-11-01T00:00:00.000Z in milliseconds
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/NotFound'
+              example:
+                code: 404
+                status: "NOT FOUND"
+                data: "User not found"
+
+    put:
+      tags:
+        - Users
+      summary: Update a user by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+      responses:
+        '200':
+          description: User updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/Ok'
+              example:
+                code: 200
+                status: "OK"
+                data:
+                  id: "123e4567-e89b-12d3-a456-426614174000"
+                  name: "John Doe"
+                  email: "john.doe@example.com"
+                  created_at: 1671615600000 # 2022-11-01T00:00:00.000Z in milliseconds
+        '400':
+          description: Invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/BadRequest'
+              example:
+                code: 400
+                status: "BAD REQUEST"
+                data: "Invalid request body"
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/NotFound'
+              example:
+                code: 404
+                status: "NOT FOUND"
+                data: "User not found"
+
+    delete:
+      tags:
+        - Users
+      summary: Delete a user by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: User deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/Deleted'
+              example:
+                code: 204
+                status: "DELETED"
+                data: "User deleted"
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/NotFound'
+              example:
+                code: 404
+                status: "NOT FOUND"
+                data: "User not found"
+
+  /users/{id}/spendings:
+    get:
+      tags:
+        - Spending
+      summary: Get all user's spending by user's ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Spendings found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/Ok'
+              example:
+                - Code: 200
+                  Status: "OK"
+                  Data:
+                    id: "bcfd2229-57de-46be-8394-614ffafd016e"
+                    user_id: "123e4567-e89b-12d3-a456-426614174000"
+                    title: "Groceries"
+                    amount: 5000
+                    date: 1671615600000 # 2022-11-01T00:00:00.000Z in milliseconds
+                    category: "Groceries"
+                    description: "Buy milk, eggs, and bread"
+                    created_at: 1671615600000 # 2022-11-01T00:00:00.000Z in milliseconds
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/NotFound'
+              example:
+                Code: 404
+                Status: "NOT FOUND"
+                Data: "Not found error message"
+
+  /spendings:
+    post:
+      tags:
+        - Spending
+      summary: Create a new spending
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SpendingRequest'
+      responses:
+        '201':
+          description: Spending created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/Created'
+              example:
+                Code: 201
+                Status: "CREATED"
+                Data:
+                  id: "bcfd2229-57de-46be-8394-614ffafd016e"
+                  user_id: "123e4567-e89b-12d3-a456-426614174000"
+                  title: "Groceries"
+                  amount: 5000
+                  date: 1671615600000 # 2022-11-01T00:00:00.000Z in milliseconds
+                  category: "Groceries"
+                  description: "Buy milk, eggs, and bread"
+                  created_at: 1671615600000 # 2022-11-01T00:00:00.000Z in milliseconds
+        '400':
+          description: Invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/BadRequest'
+              example:
+                Code: 400
+                Status: "BAD REQUEST"
+                Data: "Bad request error message"
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/NotFound'
+              example:
+                Code: 404
+                Status: "NOT FOUND"
+                Data: "Not found error message"
+
+  /spendings/{id}:
+    get:
+      tags:
+        - Spending
+      summary: Get a spending by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Spending found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/Ok'
+              example:
+                Code: 200
+                Status: "OK"
+                Data:
+                  id: "bcfd2229-57de-46be-8394-614ffafd016e"
+                  user_id: "123e4567-e89b-12d3-a456-426614174000"
+                  title: "Groceries"
+                  amount: 5000
+                  date: 1671615600000 # 2022-11-01T00:00:00.000Z in milliseconds
+                  category: "Groceries"
+                  description: "Buy milk, eggs, and bread"
+                  created_at: 1671615600000 # 2022-11-01T00:00:00.000Z in milliseconds
+        '404':
+          description: Spending not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/NotFound'
+              example:
+                Code: 404
+                Status: "NOT FOUND"
+                Data: "Not found error message"
+
+    put:
+      tags:
+        - Spending
+      summary: Update a spending by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SpendingRequest'
+      responses:
+        '200':
+          description: Spending updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/Ok'
+              example:
+                Code: 200
+                Status: "OK"
+                Data:
+                  id: "bcfd2229-57de-46be-8394-614ffafd016e"
+                  user_id: "123e4567-e89b-12d3-a456-426614174000"
+                  title: "Groceries"
+                  amount: 5000
+                  date: 1671615600000 # 2022-11-01T00:00:00.000Z in milliseconds
+                  category: "Groceries"
+                  description: "Buy milk, eggs, and bread"
+                  created_at: 1671615600000 # 2022-11-01T00:00:00.000Z in milliseconds
+        '400':
+          description: Invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/BadRequest'
+              example:
+                Code: 400
+                Status: "BAD REQUEST"
+                Data: "Bad request error message"
+
+    delete:
+      tags:
+        - Spending
+      summary: Delete a spending by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Spending deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/Deleted'
+              example:
+                Code: 204
+                Status: "DELETED"
+        '404':
+          description: Spending not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/NotFound'
+              example:
+                Code: 404
+                Status: "NOT FOUND"
+                Data: "Not found error message"
+
+components:
+  responses:
+    Ok:
+      description: Response for status code 200
+      content:
+        application/json:
+          schema:
+            oneOf:
+              - $ref: '#/components/schemas/SuccessResponse'
+              - $ref: '#/components/schemas/SuccessResponseWithListOfData'
+
+    Created:
+      description: Response for status code 201
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SuccessResponse'
+
+    Deleted:
+      description: Response for status code 204
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SuccessResponseWithoutData'
+
+    BadRequest:
+      description: Response for status code 400
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    NotFound:
+      description: Response for status code 404
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    Conflict:
+      description: Response for status code 409
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+  schemas:
+    SuccessResponse:
+      type: object
+      properties:
+        code:
+          type: number
+        status:
+          type: string
+        data:
+          oneOf:
+            - $ref: '#/components/schemas/UserResponse'
+            - $ref: '#/components/schemas/SpendingResponse'
+
+    SuccessResponseWithListOfData:
+      type: object
+      properties:
+        code:
+          type: number
+        status:
+          type: string
+        data:
+          type: array
+          items:
+            oneOf:
+              - $ref: '#/components/schemas/UserResponse'
+              - $ref: '#/components/schemas/SpendingResponse'
+
+    SuccessResponseWithoutData:
+      type: object
+      properties:
+        code:
+          type: number
+        status:
+          type: string
+
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: number
+        status:
+          type: string
+        data:
+          type: string
+
+    UserRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+      example:
+        name: "John Doe"
+        email: "john.doe@example.com"
+        password: "password123"
+
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        created_at:
+          type: number
+      example:
+        id: "123e4567-e89b-12d3-a456-426614174000"
+        name: "John Doe"
+        email: "john.doe@example.com"
+        created_at: 1671615600000 # 2022-11-01T00:00:00.000Z in milliseconds
+
+    SpendingRequest:
+      type: object
+      properties:
+        user_id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        amount:
+          type: number
+        date:
+          type: number
+        category:
+          type: string
+        description:
+          type: string
+      example:
+        user_id: "123e4567-e89b-12d3-a456-426614174000"
+        title: "Groceries"
+        amount: 5000
+        date: 1671615600000 # 2022-11-01T00:00:00.000Z in milliseconds
+        category: "Groceries"
+        description: "Buy milk, eggs, and bread"
+
+    SpendingResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        user_id:
+          type: string
+          format: uuid
+          readOnly: true
+        title:
+          type: string
+        amount:
+          type: number
+        date:
+          type: number
+        category:
+          type: string
+        description:
+          type: string
+        created_at:
+          type: number
+      example:
+        id: "bcfd2229-57de-46be-8394-614ffafd016e"
+        user_id: "123e4567-e89b-12d3-a456-426614174000"
+        title: "Groceries"
+        amount: 5000
+        date: 1671615600000 # 2022-11-01T00:00:00.000Z in milliseconds
+        category: "Groceries"
+        description: "Buy milk, eggs, and bread"
+        created_at: 1671615600000 # 2022-11-01T00:00:00.000Z in milliseconds
