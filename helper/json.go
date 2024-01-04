@@ -24,6 +24,7 @@ func ReadFromRequestBody(request *http.Request, result interface{}) {
 // The function uses the json.NewEncoder from the encoding/json package
 // to encode the response data.
 func WriteToResponseBody(writer http.ResponseWriter, response interface{}) {
+	SetupSecurityHeaders(writer)
 	writer.Header().Add("Content-Type", "application/json")
 	encoder := json.NewEncoder(writer)
 	if err := encoder.Encode(response); err != nil {
