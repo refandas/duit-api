@@ -5,6 +5,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/refandas/duit-api/app"
 	"github.com/refandas/duit-api/controller"
+	"github.com/refandas/duit-api/middleware"
 	"github.com/refandas/duit-api/repository"
 	"github.com/refandas/duit-api/service"
 	"net/http"
@@ -33,9 +34,12 @@ func main() {
 		SpendingController: spendingController,
 	}
 
+	// Setup middleware
+	handler := middleware.NewRateLimitMiddleware(router.NewRouter())
+
 	server := http.Server{
 		Addr:    "localhost:8000",
-		Handler: router.NewRouter(),
+		Handler: handler,
 	}
 
 	err := server.ListenAndServe()
